@@ -25,6 +25,10 @@ public class BlogService {
         return blogRepository.findAll();
     }
 
+    public void delete(long id){
+        blogRepository.deleteById(id);
+    }
+
     @Transactional  //트랜잭션 메서드
     public Article update(long id, UpdateArticleRequest request){
         Article article = blogRepository.findById(id)

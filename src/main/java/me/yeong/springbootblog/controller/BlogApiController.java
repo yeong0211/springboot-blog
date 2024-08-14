@@ -5,6 +5,7 @@ import me.yeong.springbootblog.domain.Article;
 import me.yeong.springbootblog.dto.AddArticleRequest;
 import me.yeong.springbootblog.dto.ArticleResponse;
 import me.yeong.springbootblog.dto.UpdateArticleRequest;
+import me.yeong.springbootblog.repository.BlogRepository;
 import me.yeong.springbootblog.service.BlogService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import java.util.List;
 @RestController //HTTP Response Body에 객체 데이터를 JSON 형식으로 반환하는 컨트롤러
 public class BlogApiController {
     private final BlogService blogService;
+    private final BlogRepository blogRepository;
 
     //HTTP 메서드가 POST일 때 전달받은 URL과 동일하면 메서드로 매핑
     @PostMapping("/api/articles")
@@ -39,6 +41,12 @@ public class BlogApiController {
         return ResponseEntity.ok()
                 .body(articles);
     }
+
+    @DeleteMapping("/api/articles/{id}")
+    public ResponseEntity<Void> deleteArticle(@PathVariable long id){
+        blogRepository.deleteById(id);
+    }
+
 
     @PutMapping("/api/articles/{id}")
     public ResponseEntity<Article> updateArticle(@PathVariable long id, @RequestBody UpdateArticleRequest request){
