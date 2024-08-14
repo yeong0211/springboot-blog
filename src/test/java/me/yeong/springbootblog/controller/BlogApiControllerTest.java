@@ -3,6 +3,7 @@ package me.yeong.springbootblog.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import me.yeong.springbootblog.domain.Article;
 import me.yeong.springbootblog.dto.AddArticleRequest;
+import me.yeong.springbootblog.dto.UpdateArticleRequest;
 import me.yeong.springbootblog.repository.BlogRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,8 +23,7 @@ import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -100,5 +100,37 @@ class BlogApiControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].content").value(content))
                 .andExpect(jsonPath("$[0].title").value(title));
+    }
+
+    @DisplayName("updateArticle: 블로그 글 수정 성공.")
+    @Test
+    public void updateArticle() throws Exception{
+        //given
+        final String url = "/api/articles/{id}";
+        final String title = "title";
+        final String content = "content";
+
+        Article savedArticle = blogRepository.save(Article.builder()
+                .title(title)
+                .content(content)
+                .build());
+
+        final String newTitle = "new title";
+        final String newContent = "new content";
+
+        UpdateArticleRequest request = new UpdateArticleRequest(newTitle,newContent);
+
+        //when
+        ResultActions result = mockMvc.perform(put(url, savedArticle.getId())
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(objectMapper.writeValueAsString(request)));
+
+        //then
+        result.andExpect(status().isOk());
+
+        Article article = blogRepository.findById(savedArticle.getId()).get();
+
+        assertThat(article.getTitle()).isEqualTo(newTitle);
+        assertThat(article.getContent()).isEqualTo(newContent);
     }
 }
