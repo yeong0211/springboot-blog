@@ -102,6 +102,51 @@ class BlogApiControllerTest {
                 .andExpect(jsonPath("$[0].title").value(title));
     }
 
+    @DisplayName("findArticles: 블로그 글 조회에 성공.")
+    @Test
+    public void findArticle() throws Exception{
+        //given
+        final String url = "/api/articles/{id}";
+        final String title = "title";
+        final String content = "content";
+
+        Article savedArticle = blogRepository.save(Article.builder()
+                .title(title)
+                .content(content)
+                .build());
+
+        //when
+        final ResultActions resultActions = mockMvc.perform(get(url, savedArticle.getId()));
+
+        //then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").value(content))
+                .andExpect(jsonPath("$.title").value(title));
+    }
+    
+    @DisplayName("deleteArticle: 블로그 글 삭제 성공.")
+    @Test
+    public void deleteArticle() throws Exception{
+        //given
+        final String url = "/api/articles/{id}";
+        final String title = "title";
+        final String content = "content";
+        
+        Article savedArticle = blogRepository.save(Article.builder()
+                .title(title)
+                .content(content)
+                .build());
+        
+        //when
+        mockMvc.perform(delete(url, savedArticle.getId()))
+                .andExpect(status().isOk());
+        
+        //then
+        List<Article> articles = blogRepository.findAll();
+        assertThat(articles.isEmpty()).isTrue();
+    }
+
     @DisplayName("updateArticle: 블로그 글 수정 성공.")
     @Test
     public void updateArticle() throws Exception{
